@@ -4,26 +4,20 @@ import { StyleSheet, Text, View, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ExpenseForm from "./src/components/ExpenceForm";
 import ExpenceView from "./src/components/ExpenceView";
-
-export interface Expense {
-  id: string;
-  description: string;
-  amount: number;
-  date: string;
-}
+import ExpenceManager from "./src/model/ExpenceManager";
+import { Expense } from "./src/model/types";
 
 export default function App() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [sum, setSum] = useState(0);
+  const [manager, setManager] = useState<ExpenceManager | null>(null);
 
   useEffect(() => {
     loadExpenses();
   }, []);
 
   useEffect(() => {
-    const total = expenses.reduce((acc, curr) => acc + curr.amount, 0);
-    setSum(total);
-
+    setSum(manager?.totalAmount() || 0);
     AsyncStorage.setItem("expenses", JSON.stringify(expenses));
   }, [expenses]);
 
@@ -31,21 +25,18 @@ export default function App() {
     const data = await AsyncStorage.getItem("expenses");
     if (!data) return;
 
-    const parsed = JSON.parse(data);
-    setExpenses(parsed);
+    const parsed: Expense[] = JSON.parse(data);
+    const mngr = new ExpenceManager(parsed);
+
+    setManager(mngr);
+    setExpenses(mngr.getExpenses());
   };
 
   const addExpense = (description: string, amount: number) => {
-    if (!description || !amount) return;
+    if (!manager) return;
 
-    const newExpense: Expense = {
-      id: Date.now().toString(),
-      description,
-      amount: amount,
-      date: new Date().toISOString(),
-    };
-
-    setExpenses([newExpense, ...expenses]);
+    manager.addExpense(description, amount);
+    setExpenses([...manager.getExpenses()]);
 
     Alert.alert(
       "Expense Added!",

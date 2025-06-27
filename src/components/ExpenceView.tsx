@@ -1,11 +1,19 @@
 import React from "react";
 import { StyleSheet, Text, FlatList } from "react-native";
-import { Expense } from "../../App";
+import { ListRenderItem } from "react-native";
+import { Expense } from "../model/types";
 
 interface ExpenceViewProps {
   expenses: Expense[];
   sum: number;
 }
+
+const renderItem: ListRenderItem<Expense> = ({ item }) => (
+  <Text style={styles.item}>
+    {item.description}: ₹{item.amount.toFixed(2)} (
+    {new Date(item.date).toLocaleDateString()})
+  </Text>
+);
 
 const ExpenceView: React.FC<ExpenceViewProps> = ({ expenses, sum }) => {
   return (
@@ -14,12 +22,7 @@ const ExpenceView: React.FC<ExpenceViewProps> = ({ expenses, sum }) => {
       <FlatList
         data={expenses}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <Text style={styles.item}>
-            {item.description}: ₹{item.amount.toFixed(2)} (
-            {new Date(item.date).toLocaleDateString()})
-          </Text>
-        )}
+        renderItem={renderItem}
         style={{ width: "100%" }}
       />
     </>
