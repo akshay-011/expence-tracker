@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, Alert } from "react-native";
+import { StyleSheet, View, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ExpenseForm from "./src/components/ExpenceForm";
 import ExpenceView from "./src/components/ExpenceView";
 import ExpenceManager from "./src/model/ExpenceManager";
 import { Expense } from "./src/model/types";
+import Header from "./src/components/Header";
+
+const ExpenceAlert = () => {
+  Alert.alert(
+    "Expense Added!",
+    "💸 Money flies! Was that really necessary? 😂",
+    [{ text: "Oops!", style: "cancel" }]
+  );
+};
 
 export default function App() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -37,18 +46,12 @@ export default function App() {
 
     manager.addExpense(description, amount);
     setExpenses([...manager.getExpenses()]);
-
-    Alert.alert(
-      "Expense Added!",
-      "💸 Money flies! Was that really necessary? 😂",
-      [{ text: "Oops!", style: "cancel" }]
-    );
+    ExpenceAlert();
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Expense Tracker</Text>
-
+      <Header />
       <ExpenseForm addExpense={addExpense} />
       <ExpenceView sum={sum} expenses={expenses} />
 
