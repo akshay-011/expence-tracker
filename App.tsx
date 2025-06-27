@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, FlatList } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import ExpenseForm from './src/components/ExpenceForm';
+import React, { useEffect, useState } from "react";
+import { StatusBar } from "expo-status-bar";
+import { StyleSheet, Text, View, Alert } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import ExpenseForm from "./src/components/ExpenceForm";
+import ExpenceView from "./src/components/ExpenceView";
 
-interface Expense {
+export interface Expense {
   id: string;
   description: string;
   amount: number;
+  date: string;
 }
 
 export default function App() {
@@ -22,12 +24,11 @@ export default function App() {
     const total = expenses.reduce((acc, curr) => acc + curr.amount, 0);
     setSum(total);
 
-    AsyncStorage.setItem('expenses', JSON.stringify(expenses));
-
+    AsyncStorage.setItem("expenses", JSON.stringify(expenses));
   }, [expenses]);
 
   const loadExpenses = async () => {
-    const data = await AsyncStorage.getItem('expenses');
+    const data = await AsyncStorage.getItem("expenses");
     if (!data) return;
 
     const parsed = JSON.parse(data);
@@ -41,26 +42,24 @@ export default function App() {
       id: Date.now().toString(),
       description,
       amount: amount,
+      date: new Date().toISOString(),
     };
 
     setExpenses([newExpense, ...expenses]);
+
+    Alert.alert(
+      "Expense Added!",
+      "💸 Money flies! Was that really necessary? 😂",
+      [{ text: "Oops!", style: "cancel" }]
+    );
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Expense Tracker</Text>
+
       <ExpenseForm addExpense={addExpense} />
-
-      <Text style={styles.sum}>Total: ₹{sum.toFixed(2)}</Text>
-
-      <FlatList
-        data={expenses}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-          <Text style={styles.item}>{item.description}: ₹{item.amount.toFixed(2)}</Text>
-        )}
-        style={{ width: '100%' }}
-      />
+      <ExpenceView sum={sum} expenses={expenses} />
 
       <StatusBar style="auto" />
     </View>
@@ -70,26 +69,26 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "flex-start",
     paddingTop: 60,
     paddingHorizontal: 20,
   },
   header: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
   },
   sum: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginVertical: 20,
   },
   item: {
     fontSize: 16,
     padding: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
   },
 });
