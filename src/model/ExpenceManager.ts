@@ -7,12 +7,17 @@ export default class ExpenceManager {
     this.expenses = initialExpenses;
   }
 
-  addExpense(description: string, amount: number): void {
+  addExpense(
+    description: string,
+    amount: number,
+    status: "paid" | "pending" = "pending"
+  ): void {
     const newExpense: Expense = {
       id: Date.now().toString(),
       date: new Date().toISOString(),
       description,
       amount,
+      status,
     };
 
     this.expenses = [newExpense, ...this.expenses];

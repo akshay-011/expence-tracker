@@ -41,10 +41,21 @@ export default function App() {
     setExpenses(mngr.getExpenses());
   };
 
-  const addExpense = (description: string, amount: number) => {
+  const addExpense = (
+    description: string,
+    amount: number,
+    status: "paid" | "pending"
+  ) => {
     if (!manager) return;
 
-    manager.addExpense(description, amount);
+    if (!description.trim() || isNaN(amount) || amount <= 0) {
+      Alert.alert(
+        "Invalid input",
+        "Please enter a valid description and amount."
+      );
+      return;
+    }
+    manager.addExpense(description, amount, status);
     setExpenses([...manager.getExpenses()]);
     ExpenceAlert();
   };
@@ -78,11 +89,5 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginVertical: 20,
-  },
-  item: {
-    fontSize: 16,
-    padding: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
   },
 });
