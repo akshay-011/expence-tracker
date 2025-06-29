@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, View, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ExpenseForm from "./src/components/ExpenceForm";
 import ExpenceView from "./src/components/ExpenceView";
-import ExpenceManager from "./src/model/ExpenceManager";
 import { Expense } from "./src/model/types";
 import Header from "./src/components/Header";
+import ExpenceManager from "./src/model/ExpenceManager";
 
 const ExpenceAlert = () => {
   Alert.alert(
@@ -17,28 +17,26 @@ const ExpenceAlert = () => {
 };
 
 export default function App() {
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [sum, setSum] = useState(0);
-  const [manager, setManager] = useState<ExpenceManager | null>(null);
+  const [manager] = React.useState(() => new ExpenceManager([]));
+  const [state, setState] = React.useState<{
+    expenses: Expense[];
+    sum: number;
+  }>({ expenses: [], sum: 0 });
 
   useEffect(() => {
     loadExpenses();
   }, []);
 
   useEffect(() => {
-    setSum(manager?.totalAmount() || 0);
-    AsyncStorage.setItem("expenses", JSON.stringify(expenses));
-  }, [expenses]);
+    AsyncStorage.setItem("expenses", JSON.stringify(state.expenses));
+  }, [state.expenses]);
 
   const loadExpenses = async () => {
     const data = await AsyncStorage.getItem("expenses");
     if (!data) return;
-
     const parsed: Expense[] = JSON.parse(data);
-    const mngr = new ExpenceManager(parsed);
-
-    setManager(mngr);
-    setExpenses(mngr.getExpenses());
+    manager.setExpenses(parsed);
+    setState({ expenses: manager.getExpenses(), sum: manager.totalAmount() });
   };
 
   const addExpense = (
@@ -46,26 +44,26 @@ export default function App() {
     amount: number,
     status: "paid" | "pending"
   ) => {
-    if (!manager) return;
-
-    if (!description.trim() || isNaN(amount) || amount <= 0) {
-      Alert.alert(
-        "Invalid input",
-        "Please enter a valid description and amount."
-      );
-      return;
-    }
     manager.addExpense(description, amount, status);
-    setExpenses([...manager.getExpenses()]);
+    setState({ expenses: manager.getExpenses(), sum: manager.totalAmount() });
     ExpenceAlert();
+  };
+
+  const onStatusToggle = (id: string, newStatus: "paid" | "pending") => {
+    manager.updateStatus(id, newStatus);
+    setState({ expenses: manager.getExpenses(), sum: manager.totalAmount() });
+    AsyncStorage.setItem("expenses", JSON.stringify(manager.getExpenses()));
   };
 
   return (
     <View style={styles.container}>
       <Header />
       <ExpenseForm addExpense={addExpense} />
-      <ExpenceView sum={sum} expenses={expenses} />
-
+      <ExpenceView
+        sum={state.sum}
+        expenses={state.expenses}
+        onStatusToggle={onStatusToggle}
+      />
       <StatusBar style="auto" />
     </View>
   );

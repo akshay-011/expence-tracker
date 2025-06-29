@@ -27,7 +27,17 @@ export default class ExpenceManager {
     return this.expenses;
   }
 
+  setExpenses(expenses: Expense[]): void {
+    this.expenses = expenses;
+  }
+
   totalAmount(): number {
     return this.expenses.reduce((acc, curr) => acc + curr.amount, 0);
+  }
+
+  updateStatus(id: string, status: "paid" | "pending"): void {
+    this.expenses = this.expenses.map((exp) =>
+      exp.id === id ? { ...exp, status } : exp
+    );
   }
 }

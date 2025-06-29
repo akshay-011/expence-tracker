@@ -6,9 +6,14 @@ import { Expense } from "../model/types";
 interface ExpenceViewProps {
   expenses: Expense[];
   sum: number;
+  onStatusToggle: (id: string, newStatus: "paid" | "pending") => void;
 }
 
-const ExpenceView: React.FC<ExpenceViewProps> = ({ expenses, sum }) => {
+const ExpenceView: React.FC<ExpenceViewProps> = ({
+  expenses,
+  sum,
+  onStatusToggle,
+}) => {
   const renderItem: ListRenderItem<Expense> = ({ item }) => (
     <View style={styles.itemRow}>
       <Text style={styles.itemText}>
@@ -18,6 +23,9 @@ const ExpenceView: React.FC<ExpenceViewProps> = ({ expenses, sum }) => {
       <Text
         style={
           item.status === "paid" ? styles.statusPaid : styles.statusPending
+        }
+        onPress={() =>
+          onStatusToggle(item.id, item.status === "paid" ? "pending" : "paid")
         }
       >
         {item.status.toLocaleLowerCase()}
@@ -33,6 +41,7 @@ const ExpenceView: React.FC<ExpenceViewProps> = ({ expenses, sum }) => {
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         style={{ width: "100%" }}
+        extraData={onStatusToggle}
       />
     </>
   );

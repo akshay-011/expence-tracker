@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Input from "../common/Input";
-import { Button, View, Text, StyleSheet } from "react-native";
+import { Button, View, Text, StyleSheet, Pressable } from "react-native";
 
 interface ExpenseFormProps {
   addExpense: (
@@ -11,26 +11,35 @@ interface ExpenseFormProps {
 }
 
 interface SelectProps {
-  onPress: () => void;
-  children: React.ReactNode;
-  style?: object;
+  status: "paid" | "pending";
+  setStatus: (status: "paid" | "pending") => void;
+  value: "paid" | "pending";
 }
 
-const Select: React.FC<SelectProps> = ({ onPress, children, style }) => (
-  <Text onPress={onPress} style={{ ...styles.statusOption, ...style }}>
-    {children}
-  </Text>
+const CheckBox: React.FC<SelectProps> = ({ status, setStatus, value }) => (
+  <>
+    <Pressable
+      style={[
+        styles.checkbox,
+        status === value ? styles.checkedPaid : styles.checkedPending,
+      ]}
+      onPress={() => setStatus(value)}
+    >
+      <Text style={styles.checkboxLabel}>{status === value ? "✔" : ""}</Text>
+    </Pressable>
+    <Text style={styles.checkboxText}>{value}</Text>
+  </>
 );
 
 const ExpenseForm: React.FC<ExpenseFormProps> = ({ addExpense }) => {
   const [description, setDescription] = useState("");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(0);
   const [status, setStatus] = useState<"paid" | "pending">("pending");
 
   const onPressHandler = () => {
-    addExpense(description, parseFloat(amount), status);
+    addExpense(description, amount, status);
     setDescription("");
-    setAmount("");
+    setAmount(0);
     setStatus("pending");
   };
 
@@ -43,23 +52,20 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ addExpense }) => {
       />
       <Input
         placeholder="Amount"
-        value={amount}
-        onChangeText={setAmount}
+        value={amount.toString()}
+        onChangeText={(text) => setAmount(parseFloat(text))}
         keyboardType="numeric"
       />
       <View style={styles.statusRow}>
-        <Select style={styles.selectedPaid} onPress={() => setStatus("paid")}>
-          Paid
-        </Select>
+        <CheckBox status={status} setStatus={setStatus} value="paid" />
 
-        <Select
-          style={styles.selectedPending}
-          onPress={() => setStatus("pending")}
-        >
-          Pending
-        </Select>
+        <CheckBox status={status} setStatus={setStatus} value="pending" />
       </View>
-      <Button title="Add Expense" onPress={onPressHandler} />
+      <Button
+        disabled={!description.trim() || isNaN(amount) || amount <= 0}
+        title="Add Expense"
+        onPress={onPressHandler}
+      />
     </>
   );
 };
@@ -70,27 +76,35 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 10,
   },
-  statusOption: {
-    fontSize: 16,
-    marginHorizontal: 10,
-    padding: 6,
-    borderRadius: 5,
-    borderWidth: 1,
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderWidth: 2,
     borderColor: "#ccc",
-    color: "#333",
-    backgroundColor: "#f5f5f5",
+    borderRadius: 4,
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: 4,
+    backgroundColor: "#fff",
   },
-  selectedPaid: {
-    color: "green",
+  checkedPaid: {
     borderColor: "green",
-    fontWeight: "bold",
     backgroundColor: "#eaffea",
   },
-  selectedPending: {
-    color: "red",
+  checkedPending: {
     borderColor: "red",
-    fontWeight: "bold",
     backgroundColor: "#ffeaea",
+  },
+  checkboxLabel: {
+    fontSize: 16,
+    color: "#333",
+    fontWeight: "bold",
+  },
+  checkboxText: {
+    fontSize: 16,
+    marginRight: 10,
+    marginLeft: 2,
+    alignSelf: "center",
   },
 });
 
