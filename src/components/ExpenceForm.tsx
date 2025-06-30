@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Input from "../common/Input";
-import { Button, View, Text, StyleSheet, Pressable } from "react-native";
+import { Button, View, StyleSheet } from "react-native";
+import { CheckBox } from "./CheckBox";
 
 interface ExpenseFormProps {
   addExpense: (
@@ -9,27 +10,6 @@ interface ExpenseFormProps {
     status: "paid" | "pending"
   ) => void;
 }
-
-interface SelectProps {
-  status: "paid" | "pending";
-  setStatus: (status: "paid" | "pending") => void;
-  value: "paid" | "pending";
-}
-
-const CheckBox: React.FC<SelectProps> = ({ status, setStatus, value }) => (
-  <>
-    <Pressable
-      style={[
-        styles.checkbox,
-        status === value ? styles.checkedPaid : styles.checkedPending,
-      ]}
-      onPress={() => setStatus(value)}
-    >
-      <Text style={styles.checkboxLabel}>{status === value ? "✔" : ""}</Text>
-    </Pressable>
-    <Text style={styles.checkboxText}>{value}</Text>
-  </>
-);
 
 const ExpenseForm: React.FC<ExpenseFormProps> = ({ addExpense }) => {
   const [description, setDescription] = useState("");
@@ -51,9 +31,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ addExpense }) => {
         onChangeText={setDescription}
       />
       <Input
-        placeholder="Amount"
         value={amount.toString()}
-        onChangeText={(text) => setAmount(parseFloat(text))}
+        onChangeText={(text) => setAmount(parseFloat(text) || 0)}
         keyboardType="numeric"
       />
       <View style={styles.statusRow}>
@@ -70,7 +49,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ addExpense }) => {
   );
 };
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   statusRow: {
     flexDirection: "row",
     justifyContent: "center",
