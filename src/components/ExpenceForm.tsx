@@ -55,36 +55,6 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 10,
   },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderWidth: 2,
-    borderColor: "#ccc",
-    borderRadius: 4,
-    alignItems: "center",
-    justifyContent: "center",
-    marginHorizontal: 4,
-    backgroundColor: "#fff",
-  },
-  checkedPaid: {
-    borderColor: "green",
-    backgroundColor: "#eaffea",
-  },
-  checkedPending: {
-    borderColor: "red",
-    backgroundColor: "#ffeaea",
-  },
-  checkboxLabel: {
-    fontSize: 16,
-    color: "#333",
-    fontWeight: "bold",
-  },
-  checkboxText: {
-    fontSize: 16,
-    marginRight: 10,
-    marginLeft: 2,
-    alignSelf: "center",
-  },
 });
 
 export default ExpenseForm;
