@@ -1,4 +1,4 @@
-import { Expense } from "./model/types";
+import { Expense } from "./types";
 
 export type State = {
   expenses: Expense[];
@@ -26,6 +26,7 @@ export function stateReducer(state: State, action: Action): State {
       const sum = action.payload.reduce((acc, curr) => acc + curr.amount, 0);
       return { expenses: action.payload, sum };
     }
+
     case "ADD_EXPENSE": {
       const newExpense: Expense = {
         id: Date.now().toString(),
@@ -45,6 +46,7 @@ export function stateReducer(state: State, action: Action): State {
           ? { ...exp, status: action.payload.status }
           : exp
       );
+
       return {
         expenses,
         sum: expenses.reduce((acc, curr) => acc + curr.amount, 0),

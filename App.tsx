@@ -1,12 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useReducer } from "react";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, View, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ExpenseForm from "./src/components/ExpenceForm";
 import ExpenceView from "./src/components/ExpenceView";
-import { Expense } from "./src/model/types";
 import Header from "./src/components/Header";
-import ExpenceManager from "./src/model/ExpenceManager";
+import { stateReducer } from "./src/model/stateManager";
+import { exportExpenses, importExpenses } from "./src/model/store";
 
 const ExpenceAlert = () => {
   Alert.alert(
@@ -17,11 +17,7 @@ const ExpenceAlert = () => {
 };
 
 export default function App() {
-  const [manager] = React.useState(() => new ExpenceManager([]));
-  const [state, setState] = React.useState<{
-    expenses: Expense[];
-    sum: number;
-  }>({ expenses: [], sum: 0 });
+  const [state, dispatch] = useReducer(stateReducer, { expenses: [], sum: 0 });
 
   useEffect(() => {
     loadExpenses();
@@ -32,11 +28,8 @@ export default function App() {
   }, [state.expenses]);
 
   const loadExpenses = async () => {
-    const data = await AsyncStorage.getItem("expenses");
-    if (!data) return;
-    const parsed: Expense[] = JSON.parse(data);
-    manager.setExpenses(parsed);
-    setState({ expenses: manager.getExpenses(), sum: manager.totalAmount() });
+    const data = await importExpenses();
+    dispatch({ type: "LOAD_EXPENSES", payload: data });
   };
 
   const addExpense = (
@@ -44,15 +37,13 @@ export default function App() {
     amount: number,
     status: "paid" | "pending"
   ) => {
-    manager.addExpense(description, amount, status);
-    setState({ expenses: manager.getExpenses(), sum: manager.totalAmount() });
+    dispatch({ type: "ADD_EXPENSE", payload: { description, amount, status } });
     ExpenceAlert();
   };
 
   const onStatusToggle = (id: string, newStatus: "paid" | "pending") => {
-    manager.updateStatus(id, newStatus);
-    setState({ expenses: manager.getExpenses(), sum: manager.totalAmount() });
-    AsyncStorage.setItem("expenses", JSON.stringify(manager.getExpenses()));
+    dispatch({ type: "UPDATE_STATUS", payload: { id, status: newStatus } });
+    exportExpenses(state.expenses);
   };
 
   return (
