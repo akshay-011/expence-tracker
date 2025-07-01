@@ -11,37 +11,74 @@ interface ExpenseFormProps {
   ) => void;
 }
 
+interface FormState {
+  description: string;
+  amount: number;
+  status: "paid" | "pending";
+}
+
+const isStateValid = (state: FormState): boolean => {
+  return (
+    state.description.trim() !== "" &&
+    !isNaN(state.amount) &&
+    state.amount > 0 &&
+    (state.status === "paid" || state.status === "pending")
+  );
+};
+
 const ExpenseForm: React.FC<ExpenseFormProps> = ({ addExpense }) => {
-  const [description, setDescription] = useState("");
-  const [amount, setAmount] = useState(0);
-  const [status, setStatus] = useState<"paid" | "pending">("pending");
+  const [formState, setFormState] = useState<FormState>({
+    description: "",
+    amount: 0,
+    status: "pending",
+  });
+
+  const onChangeText = (name: string, value: string) => {
+    setFormState((prev) => ({
+      ...prev,
+      [name]: name === "amount" ? parseFloat(value) || 0 : value,
+    }));
+  };
 
   const onPressHandler = () => {
-    addExpense(description, amount, status);
-    setDescription("");
-    setAmount(0);
-    setStatus("pending");
+    addExpense(formState.description, formState.amount, formState.status);
+    setFormState({
+      description: "",
+      amount: 0,
+      status: "pending",
+    });
   };
 
   return (
     <>
       <Input
         placeholder="Description"
-        value={description}
-        onChangeText={setDescription}
+        value={formState.description}
+        onChangeText={onChangeText}
+        name="description"
       />
       <Input
-        value={amount.toString()}
-        onChangeText={(text) => setAmount(parseFloat(text) || 0)}
+        value={formState.amount.toString()}
+        onChangeText={onChangeText}
+        name="amount"
         keyboardType="numeric"
       />
       <View style={styles.statusRow}>
-        <CheckBox status={status} setStatus={setStatus} value="paid" />
-
-        <CheckBox status={status} setStatus={setStatus} value="pending" />
+        <CheckBox
+          status={formState.status}
+          name="status"
+          setStatus={onChangeText}
+          value="paid"
+        />
+        <CheckBox
+          status={formState.status}
+          name="status"
+          setStatus={onChangeText}
+          value="pending"
+        />
       </View>
       <Button
-        disabled={!description.trim() || isNaN(amount) || amount <= 0}
+        disabled={!isStateValid(formState)}
         title="Add Expense"
         onPress={onPressHandler}
       />

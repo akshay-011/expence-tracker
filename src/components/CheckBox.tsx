@@ -3,14 +3,16 @@ import { Pressable, Text, StyleSheet } from "react-native";
 
 interface SelectProps {
   status: "paid" | "pending";
-  setStatus: (status: "paid" | "pending") => void;
+  setStatus: (name: string, status: "paid" | "pending") => void;
   value: "paid" | "pending";
+  name: string;
 }
 
 export const CheckBox: React.FC<SelectProps> = ({
   status,
   setStatus,
   value,
+  name,
 }) => (
   <>
     <Pressable
@@ -18,7 +20,7 @@ export const CheckBox: React.FC<SelectProps> = ({
         styles.checkbox,
         status === value ? styles.checkedPaid : styles.checkedPending,
       ]}
-      onPress={() => setStatus(value)}
+      onPress={() => setStatus(name, value)}
     >
       <Text style={styles.checkboxLabel}>{status === value ? "✔" : ""}</Text>
     </Pressable>

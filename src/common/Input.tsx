@@ -3,10 +3,11 @@ import { TextInput, StyleSheet } from "react-native";
 
 interface InputProps {
   value: string;
-  onChangeText: (text: string) => void;
+  onChangeText: (name: string, value: string) => void;
   placeholder?: string;
   secureTextEntry?: boolean;
   keyboardType?: "default" | "numeric" | "email-address" | "phone-pad";
+  name: string;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -15,12 +16,13 @@ const Input: React.FC<InputProps> = ({
   placeholder,
   secureTextEntry,
   keyboardType,
+  name,
 }) => {
   return (
     <TextInput
       style={styles.input}
       value={value}
-      onChangeText={onChangeText}
+      onChangeText={(value) => onChangeText(name, value)}
       placeholder={placeholder}
       placeholderTextColor="#888"
       secureTextEntry={secureTextEntry}
