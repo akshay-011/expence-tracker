@@ -5,6 +5,7 @@ export type State = {
   sum: number;
 };
 
+// TODO: fix this thing:
 export type Action =
   | { type: "LOAD_EXPENSES"; payload: Expense[] }
   | {
