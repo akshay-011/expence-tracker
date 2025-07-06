@@ -1,36 +1,54 @@
-import React from "react";
-import { StyleSheet, Text, FlatList, View } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, Text, FlatList, View, Pressable } from "react-native";
 import { ListRenderItem } from "react-native";
 import { Expense } from "../model/types";
+import ExpenseModal from "./ExpenceModal";
 
 interface ExpenceViewProps {
   expenses: Expense[];
   sum: number;
-  onStatusToggle: (id: string, newStatus: "paid" | "pending") => void;
+  updateExpense: (
+    description: string,
+    amount: number,
+    status: "paid" | "pending",
+    id?: string
+  ) => void;
 }
 
 const ExpenceView: React.FC<ExpenceViewProps> = ({
   expenses,
   sum,
-  onStatusToggle,
+  updateExpense,
 }) => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
+
+  const handlePress = (item: Expense) => {
+    setSelectedExpense(item);
+    setModalVisible(true);
+  };
+
+  const handleClose = () => {
+    setModalVisible(false);
+    setSelectedExpense(null);
+  };
+
   const renderItem: ListRenderItem<Expense> = ({ item }) => (
-    <View style={styles.itemRow}>
-      <Text style={styles.itemText}>
-        {item.description}: ₹{item.amount.toFixed(2)} (
-        {new Date(item.date).toLocaleDateString()})
-      </Text>
-      <Text
-        style={
-          item.status === "paid" ? styles.statusPaid : styles.statusPending
-        }
-        onPress={() =>
-          onStatusToggle(item.id, item.status === "paid" ? "pending" : "paid")
-        }
-      >
-        {item.status.toLocaleLowerCase()}
-      </Text>
-    </View>
+    <Pressable onPress={() => handlePress(item)}>
+      <View style={styles.itemRow}>
+        <Text style={styles.itemText}>
+          {item.description}: ₹{item.amount.toFixed(2)} (
+          {new Date(item.date).toLocaleDateString()})
+        </Text>
+        <Text
+          style={
+            item.status === "paid" ? styles.statusPaid : styles.statusPending
+          }
+        >
+          {item.status.toLocaleLowerCase()}
+        </Text>
+      </View>
+    </Pressable>
   );
 
   return (
@@ -41,8 +59,15 @@ const ExpenceView: React.FC<ExpenceViewProps> = ({
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         style={{ width: "100%" }}
-        extraData={onStatusToggle}
       />
+      {selectedExpense && (
+        <ExpenseModal
+          expense={selectedExpense}
+          isVisible={modalVisible}
+          onClose={handleClose}
+          updateExpense={updateExpense}
+        />
+      )}
     </>
   );
 };

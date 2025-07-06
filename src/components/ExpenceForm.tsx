@@ -2,12 +2,15 @@ import React, { useState } from "react";
 import Input from "../common/Input";
 import { Button, View, StyleSheet } from "react-native";
 import { CheckBox } from "./CheckBox";
+import { Expense } from "../model/types";
 
 interface ExpenseFormProps {
+  expense?: Expense;
   addExpense: (
     description: string,
     amount: number,
-    status: "paid" | "pending"
+    status: "paid" | "pending",
+    id?: string
   ) => void;
 }
 
@@ -26,11 +29,11 @@ const isStateValid = (state: FormState): boolean => {
   );
 };
 
-const ExpenseForm: React.FC<ExpenseFormProps> = ({ addExpense }) => {
+const ExpenseForm: React.FC<ExpenseFormProps> = ({ addExpense, expense }) => {
   const [formState, setFormState] = useState<FormState>({
-    description: "",
-    amount: 0,
-    status: "pending",
+    description: expense?.description || "",
+    amount: expense?.amount || 0,
+    status: expense?.status || "pending",
   });
 
   const onChangeText = (name: string, value: string) => {
@@ -41,7 +44,12 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ addExpense }) => {
   };
 
   const onPressHandler = () => {
-    addExpense(formState.description, formState.amount, formState.status);
+    addExpense(
+      formState.description,
+      formState.amount,
+      formState.status,
+      expense?.id
+    );
     setFormState({
       description: "",
       amount: 0,
@@ -79,7 +87,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ addExpense }) => {
       </View>
       <Button
         disabled={!isStateValid(formState)}
-        title="Add Expense"
+        title={expense ? "Update Expense" : "Add Expense"}
         onPress={onPressHandler}
       />
     </>

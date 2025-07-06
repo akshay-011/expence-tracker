@@ -17,8 +17,13 @@ export type Action =
       };
     }
   | {
-      type: "UPDATE_STATUS";
-      payload: { id: string; status: "paid" | "pending" };
+      type: "UPDATE_EXPENSE";
+      payload: {
+        id: string;
+        description: string;
+        amount: number;
+        status: "paid" | "pending";
+      };
     };
 
 export function stateReducer(state: State, action: Action): State {
@@ -41,11 +46,9 @@ export function stateReducer(state: State, action: Action): State {
       const sum = expenses.reduce((acc, curr) => acc + curr.amount, 0);
       return { expenses, sum };
     }
-    case "UPDATE_STATUS": {
+    case "UPDATE_EXPENSE": {
       const expenses = state.expenses.map((exp) =>
-        exp.id === action.payload.id
-          ? { ...exp, status: action.payload.status }
-          : exp
+        exp.id === action.payload.id ? { ...exp, ...action.payload } : exp
       );
 
       return {

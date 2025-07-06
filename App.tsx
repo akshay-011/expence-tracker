@@ -41,8 +41,18 @@ export default function App() {
     ExpenceAlert();
   };
 
-  const onStatusToggle = (id: string, newStatus: "paid" | "pending") => {
-    dispatch({ type: "UPDATE_STATUS", payload: { id, status: newStatus } });
+  const updateExpense = (
+    description: string,
+    amount: number,
+    status: "paid" | "pending",
+    id?: string
+  ) => {
+    if (!id) return;
+
+    dispatch({
+      type: "UPDATE_EXPENSE",
+      payload: { id, description, amount, status },
+    });
     exportExpenses(state.expenses);
   };
 
@@ -53,7 +63,7 @@ export default function App() {
       <ExpenceView
         sum={state.sum}
         expenses={state.expenses}
-        onStatusToggle={onStatusToggle}
+        updateExpense={updateExpense}
       />
       <StatusBar style="auto" />
     </View>
