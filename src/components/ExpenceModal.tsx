@@ -1,5 +1,4 @@
-import React from "react";
-import { Modal, StyleSheet } from "react-native";
+import { Modal, Pressable, StyleSheet, View } from "react-native";
 import { Expense } from "../model/types";
 import ExpenseForm from "./ExpenceForm";
 
@@ -33,23 +32,38 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({
 
   return (
     <Modal
-      style={styles.modalContainer}
       visible={isVisible}
       onRequestClose={onClose}
       animationType="slide"
-      transparent={false}
-      presentationStyle="formSheet"
+      transparent={true}
     >
-      <ExpenseForm expense={expense} addExpense={handleUpdate} />
+      <Pressable onPress={onClose} style={styles.overlay}>
+        <View style={styles.popup}>
+          <ExpenseForm expense={expense} addExpense={handleUpdate} />
+        </View>
+      </Pressable>
     </Modal>
   );
 };
 
-export default ExpenseModal;
 const styles = StyleSheet.create({
-  modalContainer: {
+  overlay: {
     flex: 1,
+    backgroundColor: "rgba(210, 206, 206, 0.3)",
     justifyContent: "center",
     alignItems: "center",
   },
+  popup: {
+    width: "90%",
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 5,
+  },
 });
+
+export default ExpenseModal;
