@@ -8,6 +8,8 @@ import Header from "./src/components/Header";
 import { stateReducer } from "./src/model/stateManager";
 import { exportExpenses, importExpenses } from "./src/model/store";
 
+// this is the change that happened
+
 const ExpenceAlert = () => {
   Alert.alert(
     "Expense Added!",
